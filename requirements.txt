@@ -5,3 +5,4 @@ lxml
 xlrd
 openpyxl
 numpy==1.23.1
+xlsxwriter
