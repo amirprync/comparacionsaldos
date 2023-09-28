@@ -1,11 +1,23 @@
 import streamlit as st
 import pandas as pd
+import io
+
+def create_sample_excel():
+    sample_data = {
+        'numero de comitente': [1, 2, 3],
+        'cantidad': [100, 200, 300]
+    }
+    sample_df = pd.DataFrame(sample_data)
+    excel_io = io.BytesIO()
+    with pd.ExcelWriter(excel_io, engine='xlsxwriter') as writer:
+        sample_df.to_excel(writer, sheet_name='Hoja1', index=False)
+    excel_io.seek(0)
+    return excel_io
 
 def compare_files(file1, file2):
     df1 = pd.read_excel(file1)
     df2 = pd.read_excel(file2)
     
-    # Asegurarse de que las columnas se llamen 'numero de comitente' y 'cantidad'
     if 'numero de comitente' not in df1.columns or 'cantidad' not in df1.columns:
         st.error("El archivo 1 debe tener columnas llamadas 'numero de comitente' y 'cantidad'")
         return
@@ -13,10 +25,8 @@ def compare_files(file1, file2):
         st.error("El archivo 2 debe tener columnas llamadas 'numero de comitente' y 'cantidad'")
         return
     
-    # Unir los dos DataFrames por 'numero de comitente'
     merged_df = pd.merge(df1, df2, on='numero de comitente', how='outer', suffixes=('_file1', '_file2'))
     
-    # Encontrar las diferencias en 'cantidad'
     diff_df = merged_df[merged_df['cantidad_file1'] != merged_df['cantidad_file2']]
     
     if diff_df.empty:
@@ -27,6 +37,15 @@ def compare_files(file1, file2):
 
 # Streamlit app
 st.title("Comparador de Archivos Excel")
+
+# Botón para descargar el archivo Excel modelo
+sample_excel = create_sample_excel()
+st.download_button(
+    label="Descargar archivo Excel modelo",
+    data=sample_excel,
+    file_name="modelo_comitente_cantidad.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
 
 uploaded_file1 = st.file_uploader("Sube el primer archivo Excel", type=['xlsx'])
 uploaded_file2 = st.file_uploader("Sube el segundo archivo Excel", type=['xlsx'])
