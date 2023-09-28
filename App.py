@@ -47,7 +47,7 @@ def compare_files(file1, file2):
         )
 
 # Streamlit app
-st.title("Comparador de Archivos Excel")
+st.title("Comparador de saldos Nasdaq / BO")
 
 sample_excel = create_sample_excel()
 st.download_button(
